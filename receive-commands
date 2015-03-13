@@ -1,0 +1,44 @@
+#! /usr/bin/env python
+
+import time
+import json
+import dateutil.parser
+import datetime
+import paho.mqtt.client as mqtt
+from config import *
+from relayr.client import Client
+from relayr.resources import Device, Transmitter
+
+client = Client(token=TOKEN)
+transmitter = Transmitter(TRANSMITTER_ID, client)
+device = Device(DEVICE_ID, client)
+transmitter.get_info()
+
+mqtt_topic = "/v1/%s/cmd" % DEVICE_ID
+
+def on_connect(client, userdata, flags, rc):
+    print("Subscribing to topic %s" % mqtt_topic)
+    client.subscribe(str(mqtt_topic), 0)
+
+def on_message(client, userdata, msg):
+    isodate = json.loads(msg.payload)["sent"]
+    sent = dateutil.parser.parse(isodate)
+    now = datetime.datetime.now()
+    elapsed = now - sent
+    print("Received command %s Took %s " % (msg.payload, elapsed))
+
+client = mqtt.Client(client_id=transmitter.id, protocol=mqtt.MQTTv31)
+client.username_pw_set(transmitter.id, transmitter.secret)
+ca_file = "{0}/relayr.crt".format(os.path.dirname(os.path.realpath(__file__)))
+client.tls_set(ca_file)
+client.tls_insecure_set(False)
+client.connect("mqtt.relayr.io", 8883, 60)
+
+client.on_connect = on_connect
+client.on_message = on_message
+
+try:
+    client.loop_forever()
+except KeyboardInterrupt:
+    client.loop_stop()
+
