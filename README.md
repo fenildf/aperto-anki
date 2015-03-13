@@ -17,7 +17,7 @@ It is advisable that you install the dependencies via `pip` and `virtualenv`.
 [sudo] pip install virtualenv
 virtualenv venv
 source venv/bin/activate
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ### OAuth access token
