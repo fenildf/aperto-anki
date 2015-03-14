@@ -4,15 +4,9 @@ import os
 import json
 from random import randrange
 from datetime import datetime
+from config import *
 from relayr.client import Client
 from relayr.resources import Device
-
-TOKEN=os.getenv("TOKEN")
-
-if TOKEN is None:
-    raise Exception("Please set the environment variable TOKEN.")
-
-DEVICE_ID="0f637589-6fea-47b8-867f-bbab4aafcf79"
 
 print("OAuth Token: %s" % TOKEN)
 
